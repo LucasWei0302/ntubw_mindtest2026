@@ -1,0 +1,109 @@
+/* 全局設置 */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #89f7fe, #66a6ff); /* 明亮的漸變背景 */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 500px;
+    padding: 40px 30px;
+    background: #ffffff;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    text-align: center;
+    animation: fadeIn 0.6s ease;
+}
+
+/* 標題樣式 */
+h1, h2 {
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* 結果描述的樣式 */
+.container p {
+    font-size: 18px;
+    line-height: 1.8; /* 調整行距讓文字更易讀 */
+    margin: 15px 0;
+    color: #444; /* 稍深的顏色區分一般段落 */
+}
+
+/* 強調文字的樣式 */
+.container p strong {
+    font-size: 22px;
+    color: #ff6a95; /* 顯眼的粉紅色強調結果名稱 */
+    font-weight: 700;
+    display: block;
+    margin-bottom: 10px; /* 與描述文本間距 */
+}
+
+
+p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* 按鈕樣式 */
+.button {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 16px;
+    color: #fff;
+    background: linear-gradient(135deg, #ff6a95, #ff8964);
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 105, 135, 0.4);
+}
+
+.option-image {
+    width: 150px; /* 調整圖片大小 */
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+label:hover .option-image {
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+
+/* 進度條 */
+.progress-bar {
+    width: 100%;
+    background-color: #f3f3f3;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 10px;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    width: 0%;
+    transition: width 0.4s ease;
+}
+
+/* 淡入效果 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

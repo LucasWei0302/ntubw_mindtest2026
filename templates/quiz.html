@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測驗進行中</title>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #5D9BBA; --bg: #FFFBEB; --text: #5B4636; }
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .progress-container {
+            width: 100%; max-width: 600px;
+            background-color: #e0e0e0;
+            border-radius: 20px; height: 10px; margin-bottom: 20px;
+        }
+        .progress-bar {
+            height: 100%; background-color: var(--primary);
+            width: {{ progress }}%; transition: width 0.3s ease; border-radius: 20px;
+        }
+        .quiz-card {
+            background: white; width: 100%; max-width: 600px;
+            border-radius: 25px; padding: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        /* 新增圖片樣式 */
+        .quiz-image {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2 { font-size: 1.3rem; line-height: 1.6; margin-bottom: 30px; margin-top: 10px;}
+        button.option-btn {
+            background: #fff; border: 2px solid #E0EAD0;
+            color: var(--text); padding: 15px; width: 100%;
+            border-radius: 15px; font-size: 1rem; margin-bottom: 15px;
+            cursor: pointer; text-align: left; transition: 0.2s;
+        }
+        button.option-btn:hover {
+            background-color: #FDF6E3; border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+    <div class="quiz-card">
+        <img src="{{ url_for('static', filename=question.image) }}" alt="題目圖片" class="quiz-image">
+
+        <span>Q{{ question_idx + 1 }}</span>
+        <h2>{{ question.question }}</h2>
+        <form method="POST">
+            {% for option in question.options %}
+                <button type="submit" name="option" value="{{ loop.index0 }}" class="option-btn">
+                    {{ option.text }}
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+</body>
+</html>
