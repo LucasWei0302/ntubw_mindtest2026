@@ -1,12 +1,50 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import os
 import random
+import json
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
+import pytz  # 用來處理時區
 
 app = Flask(__name__)
-# 記得：若要部署到公開環境，建議改用環境變數讀取 Secret Key
-app.secret_key = os.environ.get('SECRET_KEY', 'super_secret_key_for_club_quiz_v3')
+# 設定 Secret Key (從環境變數讀取，沒有的話用預設值)
+app.secret_key = os.environ.get('SECRET_KEY', 'super_secret_key_for_club_quiz_v4')
 
-# --- 題目資料 (更新為新名詞) ---
+
+# --- Google Sheets 設定 ---
+def get_google_sheet():
+    # 定義需要的權限範圍
+    scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+
+    # 嘗試從環境變數讀取憑證 (這是給 Render 用的)
+    google_creds_json = os.environ.get('GOOGLE_CREDENTIALS')
+
+    if google_creds_json:
+        # 如果環境變數有資料，就轉換成 Python 字典
+        creds_dict = json.loads(google_creds_json)
+        creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
+    else:
+        # 本地開發時，如果有放 json 檔案也可以讀取 (可選)
+        if os.path.exists('credentials.json'):
+            creds = Credentials.from_service_account_file('credentials.json', scopes=scope)
+        else:
+            print("找不到 Google 憑證，無法寫入資料庫")
+            return None
+
+    # 連線並授權
+    client = gspread.authorize(creds)
+
+    try:
+        # *** 請確認你的試算表名稱跟這裡一模一樣 ***
+        sheet = client.open("BW_mindtest_2026_後台").sheet1
+        return sheet
+    except Exception as e:
+        print(f"連線試算表失敗: {e}")
+        return None
+
+
+# --- 題目資料 ---
 questions = [
     {
         "id": 1,
@@ -119,7 +157,6 @@ MAX_POSSIBLE_SCORES = {"真誠關懷感染力": 0, "邏輯覺察判斷力": 0, "
 
 for q in questions:
     for key in MAX_POSSIBLE_SCORES.keys():
-        # 找出該題中，該屬性最高的選項分數
         max_val = max(opt['scores'][key] for opt in q['options'])
         MAX_POSSIBLE_SCORES[key] += max_val
 
@@ -147,7 +184,7 @@ result_descriptions = {
 
 @app.route('/')
 def home():
-    session.clear()
+    session.clear()  # 清除 session，代表這是新的開始
     return render_template('index.html')
 
 
@@ -156,7 +193,6 @@ def quiz(question_idx):
     if question_idx >= len(questions):
         return redirect(url_for('result'))
 
-    # 初始化 session，使用新的鍵名
     if 'total_scores' not in session:
         session['total_scores'] = {"真誠關懷感染力": 0, "邏輯覺察判斷力": 0, "抗壓成長行動力": 0}
 
@@ -208,8 +244,34 @@ def result():
     # 4. 決定結果類型
     max_ratio_keys = [k for k, v in ratios.items() if v == max_ratio]
     winner_key = random.choice(max_ratio_keys)
-
     result_content = result_descriptions[winner_key]
+
+    # --- 寫入 Google Sheets 邏輯 ---
+    # 檢查是否已經寫入過 (避免重新整理頁面導致重複寫入)
+    if not session.get('is_recorded'):
+        sheet = get_google_sheet()
+        if sheet:
+            # 取得台灣時間
+            tw_tz = pytz.timezone('Asia/Taipei')
+            current_time = datetime.now(tw_tz).strftime("%Y-%m-%d %H:%M:%S")
+
+            # 準備要寫入的一整列資料
+            row_data = [
+                current_time,  # A欄: 時間
+                user_scores['真誠關懷感染力'],  # B欄
+                user_scores['邏輯覺察判斷力'],  # C欄
+                user_scores['抗壓成長行動力'],  # D欄
+                winner_key,  # E欄: 結果類型
+                # 你可以在這裡加更多欄位
+            ]
+            try:
+                sheet.append_row(row_data)
+                print("資料已寫入 Google Sheets")
+                session['is_recorded'] = True  # 標記為已寫入
+            except Exception as e:
+                print(f"寫入 Google Sheets 失敗: {e}")
+        else:
+            print("無法取得 Sheet 物件，跳過寫入")
 
     return render_template('result.html',
                            result=result_content,
