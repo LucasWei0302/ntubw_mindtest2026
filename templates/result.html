@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>測驗結果</title>
+    <title>點亮你的潛在天賦 - 測驗結果</title>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
     <style>
         :root { --bg: #FFFBEB; --text: #5B4636; }
@@ -18,24 +20,24 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            margin: 0;
         }
         .result-card {
             background: white; border-radius: 30px;
             padding: 40px;
-            /* 放大卡片最大寬度 */
-            max-width: 800px;
-            width: 100%;
+            max-width: 800px; width: 100%;
             text-align: center;
             box-shadow: 0 15px 40px rgba(91, 70, 54, 0.15);
+            box-sizing: border-box;
+            overflow: hidden;
         }
         h1 { color: {{ result.color }}; margin: 10px 0 20px 0; font-size: 2rem; }
 
-        /* 調整圖表容器大小與置中 */
         .chart-container {
             position: relative;
-            height: 500px; /* 設定高度為 500px */
+            height: 450px;
             width: 100%;
-            margin: 30px auto; /* 上下留白並水平置中 */
+            margin: 20px auto;
         }
 
         .desc {
@@ -50,11 +52,12 @@
         }
         .btn-restart:hover { opacity: 0.9; transform: translateY(-2px);}
 
-        /* 手機版調整 */
         @media (max-width: 600px) {
-            .chart-container { height: 350px; } /* 手機版圖表稍微小一點以免溢出 */
-            .result-card { padding: 20px; }
-            h1 { font-size: 1.5rem; }
+            .chart-container { height: 380px; }
+            /* 手機版稍微縮小 padding，爭取空間 */
+            .result-card { padding: 25px 15px; }
+            h1 { font-size: 1.6rem; }
+            .desc { padding: 20px; font-size: 1rem;}
         }
     </style>
 </head>
@@ -71,54 +74,95 @@
     </div>
 
     <script>
-        const scores = {
-            '悲': {{ scores['悲'] }},
-            '智': {{ scores['智'] }},
-            '力': {{ scores['力'] }}
-        };
+        try {
+            // 註冊插件 (讓 Chart.js 知道要使用 DataLabels)
+            Chart.register(ChartDataLabels);
 
-        const ctx = document.getElementById('radarChart').getContext('2d');
-        const radarChart = new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: ['悲 (Compassion)', '智 (Wisdom)', '力 (Power)'],
-                datasets: [{
-                    label: '能力分佈',
-                    data: [scores['悲'], scores['智'], scores['力']],
-                    backgroundColor: '{{ result.color }}33', // 使用結果顏色加上透明度 (hex 33 = 20% opacity)
-                    borderColor: '{{ result.color }}',
-                    pointBackgroundColor: '{{ result.color }}',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '{{ result.color }}',
-                    borderWidth: 3,
-                    pointRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false, /* 關鍵：允許圖表不維持預設比例，填滿容器高度 */
-                scales: {
-                    r: {
-                        angleLines: { display: true, color: '#e0e0e0' },
-                        grid: { color: '#f0f0f0' },
-                        suggestedMin: 0,
-                        suggestedMax: 10,
-                        pointLabels: {
-                            font: { size: 16, family: "'Zen Maru Gothic', sans-serif", weight: 'bold' },
-                            color: '#5B4636'
-                        },
-                        ticks: {
-                            backdropColor: 'transparent', // 隱藏刻度背景
-                            font: { size: 10 }
+            const scores = {
+                '真誠關懷感染力': {{ scores['真誠關懷感染力'] }},
+                '邏輯覺察判斷力': {{ scores['邏輯覺察判斷力'] }},
+                '抗壓成長行動力': {{ scores['抗壓成長行動力'] }}
+            };
+
+            // 偵測是否為手機版
+            const isMobile = window.innerWidth < 600;
+
+            const ctx = document.getElementById('radarChart');
+
+            const radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['真誠關懷感染力', '邏輯覺察判斷力', '抗壓成長行動力'],
+                    datasets: [{
+                        label: '能力分佈',
+                        data: [scores['真誠關懷感染力'], scores['邏輯覺察判斷力'], scores['抗壓成長行動力']],
+                        backgroundColor: '{{ result.color }}33',
+                        borderColor: '{{ result.color }}',
+                        pointBackgroundColor: '{{ result.color }}',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '{{ result.color }}',
+                        borderWidth: 3,
+                        pointRadius: isMobile ? 5 : 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        // 【關鍵調整】加大內距，讓數字和文字不會被切掉
+                        padding: {
+                            top: 20,
+                            bottom: 20,
+                            left: isMobile ? 10 : 20,
+                            right: isMobile ? 10 : 20
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: true, color: '#e0e0e0' },
+                            grid: { color: '#f0f0f0' },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            pointLabels: {
+                                font: { size: isMobile ? 14 : 16, family: "'Zen Maru Gothic', sans-serif", weight: 'bold' },
+                                color: '#5B4636',
+                                // 文字與圖表的距離，拉開一點以免跟數字重疊
+                                padding: 15
+                            },
+                            ticks: {
+                                display: true,
+                                stepSize: 2,
+                                color: '#ccc', // 刻度顏色調淡一點，凸顯頂點的數字
+                                backdropColor: 'transparent',
+                                font: { size: 10 }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        // 【新增】數值標籤的設定
+                        datalabels: {
+                            color: '{{ result.color }}', // 數字顏色跟主題色一樣
+                            font: {
+                                weight: 'bold',
+                                size: isMobile ? 14 : 16, // 字體大小
+                                family: "'Zen Maru Gothic', sans-serif"
+                            },
+                            // 讓數字顯示在點的「外側」
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 4, // 距離圓點 4px
+                            // 加上白色描邊，避免壓在格線上看不清楚
+                            textStrokeColor: 'white',
+                            textStrokeWidth: 4
                         }
                     }
-                },
-                plugins: {
-                    legend: { display: false }
                 }
-            }
-        });
+            });
+        } catch (error) {
+            console.error("圖表繪製失敗:", error);
+        }
     </script>
 </body>
 </html>

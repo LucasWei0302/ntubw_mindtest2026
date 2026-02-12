@@ -3,34 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社團人特質分析</title>
+    <title>點亮你的潛在天賦</title>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 沿用原本的 CSS 風格，只做微調 */
         body {
             font-family: 'Zen Maru Gothic', sans-serif;
             background-color: #FFFBEB;
             display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            margin: 0;
+            background-image: radial-gradient(#E0EAD0 2px, transparent 2px);
+            background-size: 30px 30px;
         }
         .container {
             text-align: center; background: white; padding: 3rem 2rem;
             border-radius: 30px; box-shadow: 0 10px 25px rgba(91, 70, 54, 0.1);
             max-width: 500px; width: 90%;
+            border: 3px solid #FDF6E3;
         }
-        h1 { color: #5D9BBA; margin-bottom: 10px; }
+        /* 標題顏色可以搭配你的主題，這裡維持之前的藍色或改用暖橘色 */
+        h1 { color: #5D9BBA; margin-bottom: 10px; font-size: 2.2rem;}
+        .subtitle {
+            color: #666; line-height: 1.8; margin-bottom: 30px; font-size: 1.1rem;
+        }
         .btn-start {
             background-color: #FF9F68; color: white; padding: 15px 40px;
             font-size: 1.3rem; border-radius: 50px; text-decoration: none;
-            display: inline-block; font-weight: bold; margin-top: 30px;
+            display: inline-block; font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 159, 104, 0.4);
+        }
+        .icon { font-size: 4rem; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>社團幹部特質分析</h1>
-        <p style="color: #666; line-height: 1.6;">
-            面對衝突、壓力與抉擇，你的直覺反應是什麼？<br>
-            透過 8 個社團情境，探索你的悲智力屬性！
+        <span class="icon">✨</span>
+        <h1>點亮你的潛在天賦</h1>
+        <p class="subtitle">
+            面對社團裡的各種挑戰與抉擇<br>
+            你的直覺隱藏著什麼樣的力量？<br>
+            <br>
+            透過 8 個情境，<br>
+            探索屬於你的核心特質！
         </p>
         <a href="{{ url_for('quiz', question_idx=0) }}" class="btn-start">開始測驗</a>
     </div>
