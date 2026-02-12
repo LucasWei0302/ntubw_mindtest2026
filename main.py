@@ -258,11 +258,10 @@ def result():
             # 準備要寫入的一整列資料
             row_data = [
                 current_time,  # A欄: 時間
-                user_scores['真誠關懷感染力'],  # B欄
-                user_scores['邏輯覺察判斷力'],  # C欄
-                user_scores['抗壓成長行動力'],  # D欄
+                chart_scores['真誠關懷感染力'],  # B欄: 10分制分數
+                chart_scores['邏輯覺察判斷力'],  # C欄: 10分制分數
+                chart_scores['抗壓成長行動力'],  # D欄: 10分制分數
                 winner_key,  # E欄: 結果類型
-                # 你可以在這裡加更多欄位
             ]
             try:
                 sheet.append_row(row_data)
