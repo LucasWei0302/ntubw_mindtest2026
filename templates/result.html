@@ -53,7 +53,7 @@
         .btn-restart:hover { opacity: 0.9; transform: translateY(-2px);}
 
         @media (max-width: 600px) {
-            /* 手機版改成 320px 正方形比例，避免過高導致寬度被擠壓 */
+            /* 手機版圖表高度 */
             .chart-container { height: 320px; }
             .result-card { padding: 25px 15px; }
             h1 { font-size: 1.6rem; }
@@ -85,7 +85,6 @@
 
             const isMobile = window.innerWidth < 600;
 
-            // 【重點修改】定義標籤：如果是手機版，將文字拆成兩行 (用陣列表示)
             const rawLabels = ['真誠關懷感染力', '邏輯覺察判斷力', '抗壓成長行動力'];
             const chartLabels = isMobile ? [
                 ['真誠關懷', '感染力'],
@@ -98,7 +97,7 @@
             const radarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: chartLabels, // 使用處理過的標籤
+                    labels: chartLabels,
                     datasets: [{
                         label: '能力分佈',
                         data: [scores['真誠關懷感染力'], scores['邏輯覺察判斷力'], scores['抗壓成長行動力']],
@@ -116,12 +115,12 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: {
-                        // 增加內距，強迫圖表縮小一點，留位置給文字
+                        // 【修正1】加大內距，確保推出去的文字不會被切掉
                         padding: {
-                            top: 10,
-                            bottom: 10,
-                            left: isMobile ? 5 : 20,
-                            right: isMobile ? 5 : 20
+                            top: 30,    // 上方留多一點給標題
+                            bottom: 30,
+                            left: isMobile ? 10 : 20,
+                            right: isMobile ? 10 : 20
                         }
                     },
                     scales: {
@@ -131,18 +130,18 @@
                             suggestedMin: 0,
                             suggestedMax: 10,
                             pointLabels: {
-                                // 手機字體改小一點 (12px)
                                 font: { size: isMobile ? 12 : 16, family: "'Zen Maru Gothic', sans-serif", weight: 'bold' },
                                 color: '#5B4636',
-                                // 減少文字與圖的距離，讓結構緊湊一點
-                                padding: isMobile ? 5 : 15
+                                // 【修正2】大幅增加文字與圖表的距離 (原本是 5，現在改 25)
+                                // 這樣數字就會在圖表和文字的中間，不會重疊
+                                padding: isMobile ? 25 : 20
                             },
                             ticks: {
                                 display: true,
                                 stepSize: 2,
                                 color: '#ccc',
                                 backdropColor: 'transparent',
-                                font: { size: 9 } // 刻度字體也縮小
+                                font: { size: 9 }
                             }
                         }
                     },
@@ -157,7 +156,7 @@
                             },
                             anchor: 'end',
                             align: 'end',
-                            offset: isMobile ? 2 : 4, // 手機版數字離點近一點
+                            offset: 2, // 數字離圓點的距離
                             textStrokeColor: 'white',
                             textStrokeWidth: 4
                         }
